@@ -32,6 +32,10 @@ function new_game()
     dealer = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, scored_cards = {} }
 
     scoring = {}
+    round = {
+        ended = false,
+        winner = ''
+    } 
     
     if love.math.random(2) > 1 then
         active_player = player
@@ -110,7 +114,7 @@ function calc_hand_score(target1, target2)
     end
 end
 
-function check_scores()
+function score_hand()
     if scoring == player then
         calc_hand_score(player, dealer)
     else
@@ -124,7 +128,30 @@ function check_scores()
         table.insert(dealer.scored_cards, player.played_card.suit)
         active_player = dealer
     end
-    wait_timer = 1
+    wait_timer = 1.5
+end
+
+function score_round()
+    if #player.scored_cards > 0 then
+        for cardIndex, card in ipairs(player.scored_cards) do
+            if scores[card.rank] then
+                player.round_score = player.round_score + scores[card.rank]
+            end
+        end
+    end
+    if #dealer.scored_cards > 0 then
+        for cardIndex, card in ipairs(dealer.scored_cards) do
+            if scores[card.rank] then
+                dealer.round_score = dealer.round_score + scores[card.rank]
+            end
+        end
+    end
+    if player.round_score > dealer.round_score then
+        round.winner = 'PLAYER'
+    else
+        round.winnder = 'DEALER'
+    end
+    round.ended = true
 end
 
 function reset_played_cards()
@@ -143,19 +170,9 @@ function love.update(dt)
             reset_played_cards()
         end
     elseif #player.hand == 0 and #dealer.hand == 0 and (player.round_score == 0 and dealer.round_score == 0) then
-        if #player.scored_cards > 0 then
-            for cardIndex, card in ipairs(player.scored_cards) do
-                print(scores[card.rank])
-                player.round_score = player.round_score + 1
-            end
-        end
-        if #dealer.scored_cards > 0 then
-            for cardIndex, card in ipairs(dealer.scored_cards) do
-                dealer.round_score = dealer.round_score + 1
-            end
-        end
+        score_round()
     elseif player.card_played and dealer.card_played then
-        check_scores()
+        score_hand()
     elseif active_player == dealer then
         dealer_turn()
     end
@@ -192,11 +209,12 @@ function love.draw()
         love.graphics.print('<DEALER> suit: '..dealer.played_card.suit..', rank: '..dealer.played_card.rank, 400, 70)
     end
     if player.hand_score > dealer.hand_score then
-        love.graphics.print('<PLAYER> wins', 400, 90)
+        love.graphics.print('<PLAYER> wins hand.', 400, 90)
     elseif player.hand_score < dealer.hand_score then
-        love.graphics.print('<DEALER> wins', 400, 90)
+        love.graphics.print('<DEALER> wins hand.', 400, 90)
     end
-    if player.round_score > 0 or dealer.round_score > 0 then
+    if round.ended then
         love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 110)
+        love.graphics.print('<'..round.winner..'> wins round!', 400, 130)
     end
 end
