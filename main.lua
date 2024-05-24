@@ -124,7 +124,7 @@ function check_scores()
         table.insert(dealer.scored_cards, player.played_card.suit)
         active_player = dealer
     end
-    wait_timer = 0.1
+    wait_timer = 1
 end
 
 function reset_played_cards()
