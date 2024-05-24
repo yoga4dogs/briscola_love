@@ -142,25 +142,24 @@ function love.update(dt)
         if wait_timer <= 0 and (#player.hand > 0 or #dealer.hand > 0) then
             reset_played_cards()
         end
+    elseif #player.hand == 0 and #dealer.hand == 0 and (player.round_score == 0 and dealer.round_score == 0) then
+        if #player.scored_cards > 0 then
+            for cardIndex, card in ipairs(player.scored_cards) do
+                print(scores[card.rank])
+                player.round_score = player.round_score + 1
+            end
+        end
+        if #dealer.scored_cards > 0 then
+            for cardIndex, card in ipairs(dealer.scored_cards) do
+                dealer.round_score = dealer.round_score + 1
+            end
+        end
     elseif player.card_played and dealer.card_played then
         check_scores()
     elseif active_player == dealer then
         dealer_turn()
     end
-    if #player.hand == 0 and #dealer.hand == 0 then
-        if #player.scored_cards > 0 then
-            for cardIndex, card in ipairs(player.scored_cards) do
-                player.round_score = player.round_score + scores[card.rank]
-            end
-        end
-        if #dealer.scored_cards > 0 then
-            for cardIndex, card in ipairs(dealer.scored_cards) do
-                dealer.round_score = dealer.round_score + scores[card.rank]
-            end
-        end
-        print('player: '..player.round_score..' dealer: '..dealer.round_score)
-        reset_played_cards()
-    end
+    
 
 end
 
