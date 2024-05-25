@@ -1,4 +1,25 @@
 function love.load()
+    cardback = love.graphics.newImage('/images/cardback.png')
+    card_art = {
+        [11] = love.graphics.newImage('/images/temp_card.png'),
+        [2] = love.graphics.newImage('/images/temp_card.png'),
+        [3] = love.graphics.newImage('/images/temp_card.png'),
+        [4] = love.graphics.newImage('/images/temp_card.png'),
+        [5] = love.graphics.newImage('/images/temp_card.png'),
+        [6] = love.graphics.newImage('/images/temp_card.png'),
+        [7] = love.graphics.newImage('/images/temp_card.png'),
+        [8] = love.graphics.newImage('/images/temp_card.png'),
+        [9] = love.graphics.newImage('/images/temp_card.png'), 
+        [10] = love.graphics.newImage('/images/temp_card.png')
+    }
+    card_width = cardback:getWidth()
+    
+    -- Tileset = love.graphics.newImage('/images/catscups.png')
+    -- local tileW, tileH = 128, 256
+    -- local tilesetW, tilesetH = Tileset:getWidth(), Tileset:getHeight()
+    -- kingQuad = love.graphics.newQuad(0, 0, tileW, tileH, tilesetW, tilesetH)
+    -- queenQuad = love.graphics.newQuad(tileW, 0, tileW, tileH, tilesetW, tilesetH)
+
     -- init hands and deck
     scores = {
         [11] = 11,
@@ -58,7 +79,19 @@ function init_deck()
     full_deck = {}
     for suitIndex, suit in ipairs({'club', 'sword', 'coin', 'cup'}) do
         for rank = 2, 11 do
-            table.insert(full_deck, {suit = suit, rank = rank})
+            local temp_card = {
+                suit = suit,
+                rank = rank,
+                display = {
+                    hover = false,
+                    posX = 0,
+                    posY = 0,
+                    offsetX = card_width / 2,
+                    offsetY = card_width,
+                    rot = love.math.random()/10.0-.05
+                }
+            }
+            table.insert(full_deck, temp_card)
         end
     end
     replenish_deck()
@@ -68,7 +101,12 @@ function replenish_deck()
 end
 
 function draw_card(target)
-    table.insert(target.hand, table.remove(deck, love.math.random(#deck)))
+    local temp_card = table.remove(deck, love.math.random(#deck))
+    if target == player then
+        temp_card.display.posX = (15+card_width/2)+(#target.hand*card_width)
+        temp_card.display.posY = 400
+    end
+    table.insert(target.hand, temp_card)
 end
 
 function play_card(target, card_index)
@@ -93,6 +131,16 @@ function love.keypressed(key)
             play_card(player, tonumber(key))
             active_player = dealer
         end
+    end
+end
+
+function love.mousemoved(x, y)
+    for cardIndex, card in ipairs(player.hand) do
+        if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
+            card.display.hover = true
+        else 
+            card.display.hover = false
+        end 
     end
 end
 
@@ -217,4 +265,15 @@ function love.draw()
         love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 110)
         love.graphics.print('<'..round.winner..'> wins round!', 400, 130)
     end
+    
+    for cardIndex, card in ipairs(player.hand) do
+        if card.display.hover == true then
+            love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+            print("HOVER"..card.rank.." "..card.suit)
+        else
+            love.graphics.draw(cardback, card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+            print("NO")
+        end
+    end
+
 end
