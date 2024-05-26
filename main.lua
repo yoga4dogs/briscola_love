@@ -111,7 +111,7 @@ function draw_card(target)
     if (#deck > 0) then
         local temp_card = table.remove(deck, love.math.random(#deck))
         if target == player then
-            temp_card.display.posX = temp_card.display.offsetX + 72
+            temp_card.display.posX = temp_card.display.offsetX + 64
             temp_card.display.posY = 600
         end
         table.insert(target.hand, temp_card)
