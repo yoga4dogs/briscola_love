@@ -72,7 +72,7 @@ function new_game()
     draw_card(trump)
     trump.card =  trump.hand[1]
     trump.suit = trump.card.suit
-    local posX = 600
+    local posX = 680
     local posY = 300
     trump.card.display.posX = posX
     trump.card.display.posY = posY
@@ -111,8 +111,7 @@ function draw_card(target)
     if (#deck > 0) then
         local temp_card = table.remove(deck, love.math.random(#deck))
         if target == player then
-            -- this sucks need to redo so cards dont overlap in last position
-            temp_card.display.posX = 60
+            temp_card.display.posX = temp_card.display.offsetX + 72
             temp_card.display.posY = 600
         end
         table.insert(target.hand, temp_card)
@@ -120,8 +119,8 @@ function draw_card(target)
 end
 
 function play_card(target, card_index)
-    local posX = 200
-    local posY = 300
+    local posX = 220
+    local posY = trump.card.display.posY
     local temp_card = table.remove(target.hand, card_index)
     if target == player then
         temp_card.display.posX = posX
@@ -270,36 +269,36 @@ end
 function love.draw()
     -- text display
     -- trump card
-    love.graphics.print('<TRUMP> suit: '..trump.suit, 400, 15)
+    love.graphics.print('<TRUMP> suit: '..trump.suit, 400, 16)
     -- player hand
     local player_output = {}
     table.insert(player_output, 'Player hand:')
     for cardIndex, card in ipairs(player.hand) do
         table.insert(player_output, 'suit: '..card.suit..', rank: '..card.rank)
     end
-    love.graphics.print(table.concat(player_output, '\n'), 15, 15)
+    love.graphics.print(table.concat(player_output, '\n'), 16, 16)
     -- dealer hand
     local dealer_output = {}
     table.insert(dealer_output, 'Dealer hand:')
     for cardIndex, card in ipairs(dealer.hand) do
         table.insert(dealer_output, 'suit: '..card.suit..', rank: '..card.rank)
     end
-    love.graphics.print(table.concat(dealer_output, '\n'), 200, 15)
+    love.graphics.print(table.concat(dealer_output, '\n'), 240, 15)
     -- played card
     if player.card_played then
-        love.graphics.print('<PLAYER> suit: '..player.played_card.suit..', rank: '..player.played_card.rank, 400, 50)
+        love.graphics.print('<PLAYER> suit: '..player.played_card.suit..', rank: '..player.played_card.rank, 400, 48)
     end
     if dealer.card_played then    
-        love.graphics.print('<DEALER> suit: '..dealer.played_card.suit..', rank: '..dealer.played_card.rank, 400, 70)
+        love.graphics.print('<DEALER> suit: '..dealer.played_card.suit..', rank: '..dealer.played_card.rank, 400, 64)
     end
     if player.hand_score > dealer.hand_score then
-        love.graphics.print('<PLAYER> wins hand.', 400, 90)
+        love.graphics.print('<PLAYER> wins hand.', 400, 96)
     elseif player.hand_score < dealer.hand_score then
-        love.graphics.print('<DEALER> wins hand.', 400, 90)
+        love.graphics.print('<DEALER> wins hand.', 400, 96)
     end
     if round.ended then
-        love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 110)
-        love.graphics.print('<'..round.winner..'> wins round!', 400, 130)
+        love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 112)
+        love.graphics.print('<'..round.winner..'> wins round!', 400, 128)
     end
 
     -- card graphics
@@ -311,7 +310,7 @@ function love.draw()
     -- deck
     if #deck > 0 then
         local card = trump.card
-        love.graphics.draw(card_art[0], trump.card.display.posX+15+card_width, trump.card.display.posY, 0, 1, 1, card_width/2, card_width)
+        love.graphics.draw(card_art[0], trump.card.display.posX+32+card_width, trump.card.display.posY, 0, 1, 1, card_width/2, card_width)
     end
     -- played cards
     if player.card_played then
@@ -328,6 +327,6 @@ function love.draw()
         if card.display.hover == true then
             hover_scale = 1.1
         end
-        love.graphics.draw(card_art[card.rank], card.display.posX+((cardIndex-1)*card_width)+15, card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.posX+((cardIndex-1)*card_width), card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
     end
 end
