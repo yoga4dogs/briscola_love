@@ -18,6 +18,29 @@ function love.load()
     }
     card_width = card_art[0]:getWidth()
 
+    suit_colors = {
+        club = {
+            r = 0,
+            g = 1,
+            b = 0
+        },
+        sword = {
+            r = 0,
+            g = 1,
+            b = 1
+        },
+        coin = {
+            r = 1,
+            g = 1,
+            b = 0
+        },
+        cup = {
+            r = 1,
+            g = 0,
+            b = 0
+        }
+    }
+
     -- init hands and deck
     scores = {
         [2] = 0,
@@ -215,6 +238,8 @@ function calc_hand_score(target1, target2)
         target2.hand_score = target2.played_card.rank + 100
     elseif target2.played_card.suit == target1.played_card.suit then
         target2.hand_score = target2.played_card.rank
+    else
+        target2.hand_score = 0
     end
 end
 
@@ -267,6 +292,7 @@ end
 
 function love.draw()
     -- text display
+    love.graphics.setColor(1,1,1)
     -- trump card
     love.graphics.print('<TRUMP> suit: '..trump.suit, 400, 16)
     -- player hand
@@ -299,25 +325,29 @@ function love.draw()
         love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 112)
         love.graphics.print('<'..round.winner..'> wins round!', 400, 128)
     end
-
+    
     -- card graphics
-    -- trump card
-    if trump.card then
-        local card = trump.card
-        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
-    end
     -- deck
     if #deck > 0 then
         local card = trump.card
         love.graphics.draw(card_art[0], trump.card.display.posX+32+card_width, trump.card.display.posY, 0, 1, 1, card_width/2, card_width)
     end
+    -- set suit colors
+    -- trump card
+    if trump.card then
+        local card = trump.card
+        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
+        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+    end
     -- played cards
     if player.card_played then
         local card = player.played_card
+        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
         love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
     if dealer.card_played then
         local card = dealer.played_card
+        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
         love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
     -- player hand
@@ -326,6 +356,7 @@ function love.draw()
         if card.display.hover == true then
             hover_scale = 1.1
         end
+        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
         love.graphics.draw(card_art[card.rank], card.display.posX+((cardIndex-1)*card_width), card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
     end
 end
