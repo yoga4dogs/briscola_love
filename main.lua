@@ -1,6 +1,8 @@
 function love.load()
+    -- background color
     love.graphics.setBackgroundColor( 0.153, 0.467, 0.078 )
 
+    -- set card art
     card_art = {
         [0] = love.graphics.newImage('/images/cardback.png'),
         [2] = love.graphics.newImage('/images/temp_card.png'),
@@ -185,6 +187,23 @@ function dealer_turn()
     active_player = player
 end
 
+function score_hand()
+    if scoring == player then
+        calc_hand_score(player, dealer)
+    else
+        calc_hand_score(dealer, player)
+    end
+    
+    if player.hand_score > dealer.hand_score then
+        table.insert(player.scored_cards, player.played_card)
+        active_player = player
+    else
+        table.insert(dealer.scored_cards, player.played_card.suit)
+        active_player = dealer
+    end
+    wait_timer = 2
+end
+
 function calc_hand_score(target1, target2)
     if target1.played_card.suit == trump.suit then
         target1.hand_score = target1.played_card.rank + 100
@@ -196,23 +215,6 @@ function calc_hand_score(target1, target2)
     elseif target2.played_card.suit == target1.played_card.suit then
         target2.hand_score = target2.played_card.rank
     end
-end
-
-function score_hand()
-    if scoring == player then
-        calc_hand_score(player, dealer)
-    else
-        calc_hand_score(dealer, player)
-    end
-
-    if player.hand_score > dealer.hand_score then
-        table.insert(player.scored_cards, player.played_card)
-        active_player = player
-    else
-        table.insert(dealer.scored_cards, player.played_card.suit)
-        active_player = dealer
-    end
-    wait_timer = 2
 end
 
 function score_round()
@@ -263,9 +265,9 @@ function love.update(dt)
 end
 
 function love.draw()
+    -- text display
     -- trump card
     love.graphics.print('<TRUMP> suit: '..trump.suit, 400, 15)
-    
     -- player hand
     local player_output = {}
     table.insert(player_output, 'Player hand:')
@@ -273,7 +275,6 @@ function love.draw()
         table.insert(player_output, 'suit: '..card.suit..', rank: '..card.rank)
     end
     love.graphics.print(table.concat(player_output, '\n'), 15, 15)
-
     -- dealer hand
     local dealer_output = {}
     table.insert(dealer_output, 'Dealer hand:')
@@ -281,7 +282,6 @@ function love.draw()
         table.insert(dealer_output, 'suit: '..card.suit..', rank: '..card.rank)
     end
     love.graphics.print(table.concat(dealer_output, '\n'), 200, 15)
-
     -- played card
     if player.card_played then
         love.graphics.print('<PLAYER> suit: '..player.played_card.suit..', rank: '..player.played_card.rank, 400, 50)
@@ -299,16 +299,18 @@ function love.draw()
         love.graphics.print('<'..round.winner..'> wins round!', 400, 130)
     end
 
+    -- card graphics
+    -- trump card
     if trump.card then
         local card = trump.card
         love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
-    
+    -- deck
     if #deck > 0 then
         local card = trump.card
         love.graphics.draw(card_art[0], trump.card.display.posX+15+card_width, trump.card.display.posY, 0, 1, 1, card_width/2, card_width)
     end
-    
+    -- played cards
     if player.card_played then
         local card = player.played_card
         love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
@@ -317,7 +319,7 @@ function love.draw()
         local card = dealer.played_card
         love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
-
+    -- player hand
     for cardIndex, card in ipairs(player.hand) do
         local hover_scale = 1
         if card.display.hover == true then
