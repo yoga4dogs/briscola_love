@@ -140,6 +140,7 @@ function play_card_mouse(x, y, target)
         if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
             play_card(target, cardIndex)
             active_player = dealer
+            break
         end 
     end
 end
