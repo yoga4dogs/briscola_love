@@ -6,30 +6,30 @@ function love.load()
     card_art = {
         [0] = love.graphics.newImage('/images/card_back.png'),
         [2] = love.graphics.newImage('/images/card_2.png'),
-        [3] = love.graphics.newImage('/images/card_3.png'),
-        [4] = love.graphics.newImage('/images/card_4.png'),
-        [5] = love.graphics.newImage('/images/card_5.png'),
-        [6] = love.graphics.newImage('/images/card_6.png'),
-        [7] = love.graphics.newImage('/images/card_7.png'),
-        [8] = love.graphics.newImage('/images/card_jack.png'),
-        [9] = love.graphics.newImage('/images/card_queen.png'), 
-        [10] = love.graphics.newImage('/images/card_king.png'),
+        [3] = love.graphics.newImage('/images/card_4.png'),
+        [4] = love.graphics.newImage('/images/card_5.png'),
+        [5] = love.graphics.newImage('/images/card_6.png'),
+        [6] = love.graphics.newImage('/images/card_7.png'),
+        [7] = love.graphics.newImage('/images/card_jack.png'),
+        [8] = love.graphics.newImage('/images/card_queen.png'), 
+        [9] = love.graphics.newImage('/images/card_king.png'),
+        [10] = love.graphics.newImage('/images/card_3.png'),
         [11] = love.graphics.newImage('/images/card_ace.png')
     }
     card_width = card_art[0]:getWidth()
 
     -- init hands and deck
     scores = {
-        [11] = 11,
         [2] = 0,
-        [3] = 10,
+        [3] = 0,
         [4] = 0,
         [5] = 0,
         [6] = 0,
-        [7] = 0,
-        [8] = 2,
-        [9] = 3, 
-        [10] = 4
+        [7] = 2,
+        [8] = 3, 
+        [9] = 4,
+        [10] = 10,
+        [11] = 11
     }
     new_game()
 end
@@ -196,12 +196,14 @@ function score_hand()
     
     if player.hand_score > dealer.hand_score then
         table.insert(player.scored_cards, player.played_card)
+        table.insert(player.scored_cards, dealer.played_card)
         active_player = player
     else
-        table.insert(dealer.scored_cards, player.played_card.suit)
+        table.insert(dealer.scored_cards, player.played_card)
+        table.insert(dealer.scored_cards, dealer.played_card)
         active_player = dealer
     end
-    wait_timer = 2
+    wait_timer = 1
 end
 
 function calc_hand_score(target1, target2)
@@ -218,7 +220,6 @@ function calc_hand_score(target1, target2)
 end
 
 function score_round()
-    -- something isnt' working here
     if #player.scored_cards > 0 then
         for cardIndex, card in ipairs(player.scored_cards) do
             if scores[card.rank] then
@@ -228,6 +229,7 @@ function score_round()
     end
     if #dealer.scored_cards > 0 then
         for cardIndex, card in ipairs(dealer.scored_cards) do
+            print(card.rank)
             if scores[card.rank] then
                 dealer.round_score = dealer.round_score + scores[card.rank]
             end
@@ -236,7 +238,7 @@ function score_round()
     if player.round_score > dealer.round_score then
         round.winner = 'PLAYER'
     else
-        round.winnder = 'DEALER'
+        round.winner = 'DEALER'
     end
     round.ended = true
 end
