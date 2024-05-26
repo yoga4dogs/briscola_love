@@ -152,11 +152,11 @@ function play_card(target, card_index)
         temp_card.display.posX = posX + card_width + 20
         temp_card.display.posY = posY
     end
-    target.card_played = true
     target.played_card = temp_card
     if player.card_played == false and dealer.card_played == false then
         scoring = target
     end
+    target.card_played = true
     -- draw_card(target)
 end
 
@@ -225,7 +225,7 @@ function score_hand()
         draw_card(dealer)
         draw_card(player)
     end
-    wait_timer = 1
+    wait_timer = 2
 end
 
 function calc_hand_score(target1, target2)
