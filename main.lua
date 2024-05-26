@@ -228,7 +228,6 @@ function score_round()
     end
     if #dealer.scored_cards > 0 then
         for cardIndex, card in ipairs(dealer.scored_cards) do
-            print(card.rank)
             if scores[card.rank] then
                 dealer.round_score = dealer.round_score + scores[card.rank]
             end
