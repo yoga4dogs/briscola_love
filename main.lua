@@ -14,7 +14,7 @@ function love.load()
         [8] = love.graphics.newImage('/images/card_jack.png'),
         [9] = love.graphics.newImage('/images/card_queen.png'), 
         [10] = love.graphics.newImage('/images/card_king.png'),
-        [11] = love.graphics.newImage('/images/card_car.png')
+        [11] = love.graphics.newImage('/images/card_ace.png')
     }
     card_width = card_art[0]:getWidth()
 
@@ -218,6 +218,7 @@ function calc_hand_score(target1, target2)
 end
 
 function score_round()
+    -- something isnt' working here
     if #player.scored_cards > 0 then
         for cardIndex, card in ipairs(player.scored_cards) do
             if scores[card.rank] then
