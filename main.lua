@@ -135,7 +135,7 @@ function play_card(target, card_index)
     if player.card_played == false and dealer.card_played == false then
         scoring = target
     end
-    draw_card(target)
+    -- draw_card(target)
 end
 
 function play_card_mouse(x, y, target)
@@ -155,12 +155,8 @@ function check_mouse_select(x, y, card, cardIndex)
 end
 
 function love.keypressed(key)
-    -- draw card
-    if key == 'd' and #player.hand < 7 then
-        player.card_played = false
-        draw_card(player.hand)
     -- new game
-    elseif key == 'n' then
+    if key == 'n' then
         new_game()
     end
 end
@@ -198,10 +194,14 @@ function score_hand()
         table.insert(player.scored_cards, player.played_card)
         table.insert(player.scored_cards, dealer.played_card)
         active_player = player
+        draw_card(player)
+        draw_card(dealer)
     else
         table.insert(dealer.scored_cards, player.played_card)
         table.insert(dealer.scored_cards, dealer.played_card)
         active_player = dealer
+        draw_card(dealer)
+        draw_card(player)
     end
     wait_timer = 1
 end
