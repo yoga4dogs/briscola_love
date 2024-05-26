@@ -1,4 +1,6 @@
 function love.load()
+    love.graphics.setBackgroundColor( 0.153, 0.467, 0.078 )
+
     card_art = {
         [0] = love.graphics.newImage('/images/cardback.png'),
         [2] = love.graphics.newImage('/images/temp_card.png'),
@@ -41,7 +43,7 @@ end
 function new_game()
     wait_timer = 0
     
-    trump = { hand = {}, card = {} }
+    trump = { hand = {}, card = {}, suit = '' }
     
     player = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, scored_cards = {} }
     dealer = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, scored_cards = {} }
@@ -67,6 +69,11 @@ function new_game()
 
     draw_card(trump)
     trump.card =  trump.hand[1]
+    trump.suit = trump.card.suit
+    local posX = 600
+    local posY = 300
+    trump.card.display.posX = posX
+    trump.card.display.posY = posY
 end
 
 function init_deck()
@@ -95,12 +102,18 @@ function replenish_deck()
 end
 
 function draw_card(target)
-    local temp_card = table.remove(deck, love.math.random(#deck))
-    if target == player then
-        temp_card.display.posX = (15+card_width/2)+(#target.hand*card_width)
-        temp_card.display.posY = 600
+    if #deck == 0 and trump.card then
+        table.insert(deck, trump.card)
+        trump.card = nil
+    end 
+    if (#deck > 0) then
+        local temp_card = table.remove(deck, love.math.random(#deck))
+        if target == player then
+            temp_card.display.posX = (60+card_width/2)+(#target.hand*card_width)
+            temp_card.display.posY = 600
+        end
+        table.insert(target.hand, temp_card)
     end
-    table.insert(target.hand, temp_card)
 end
 
 function play_card(target, card_index)
@@ -111,13 +124,23 @@ function play_card(target, card_index)
         temp_card.display.posX = posX
         temp_card.display.posY = posY
     else
-        temp_card.display.posX = posX + card_width + 15
+        temp_card.display.posX = posX + card_width + 20
         temp_card.display.posY = posY
     end
     target.card_played = true
     target.played_card = temp_card
     if player.card_played == false and dealer.card_played == false then
         scoring = target
+    end
+    draw_card(target)
+end
+
+function play_card_mouse(x, y, target)
+    for cardIndex, card in ipairs(target.hand) do
+        if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
+            play_card(target, cardIndex)
+            active_player = dealer
+        end 
     end
 end
 
@@ -132,21 +155,14 @@ function love.keypressed(key)
     end
 end
 
-function play_card_mouse(x, y, target)
-    for cardIndex, card in ipairs(target.hand) do
-        if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
-            play_card(target, cardIndex)
-            active_player = dealer
-        end 
+function love.mousepressed(x, y)
+    if active_player == player then
+        play_card_mouse(x, y, player)
     end
 end
 
-function love.mousepressed(x, y)
-    play_card_mouse(x, y, player)
-end
-
--- flip cards hover
 function love.mousemoved(x, y)
+    -- flip cards hover
     for cardIndex, card in ipairs(player.hand) do
         if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
             card.display.hover = true
@@ -162,12 +178,12 @@ function dealer_turn()
 end
 
 function calc_hand_score(target1, target2)
-    if target1.played_card.suit == trump.card.suit then
+    if target1.played_card.suit == trump.suit then
         target1.hand_score = target1.played_card.rank + 100
     else
         target1.hand_score = target1.played_card.rank
     end
-    if target2.played_card.suit == trump.card.suit then
+    if target2.played_card.suit == trump.suit then
         target2.hand_score = target2.played_card.rank + 100
     elseif target2.played_card.suit == target1.played_card.suit then
         target2.hand_score = target2.played_card.rank
@@ -188,7 +204,7 @@ function score_hand()
         table.insert(dealer.scored_cards, player.played_card.suit)
         active_player = dealer
     end
-    wait_timer = 3
+    wait_timer = 2
 end
 
 function score_round()
@@ -240,13 +256,13 @@ end
 
 function love.draw()
     -- trump card
-    love.graphics.print('<TRUMP> suit: '..trump.card.suit..', rank: '..trump.card.rank, 400, 15)
+    love.graphics.print('<TRUMP> suit: '..trump.suit, 400, 15)
     
     -- player hand
     local player_output = {}
     table.insert(player_output, 'Player hand:')
     for cardIndex, card in ipairs(player.hand) do
-        table.insert(player_output, cardIndex..'> suit: '..card.suit..', rank: '..card.rank)
+        table.insert(player_output, 'suit: '..card.suit..', rank: '..card.rank)
     end
     love.graphics.print(table.concat(player_output, '\n'), 15, 15)
 
@@ -274,6 +290,16 @@ function love.draw()
         love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 110)
         love.graphics.print('<'..round.winner..'> wins round!', 400, 130)
     end
+
+    if trump.card then
+        local card = trump.card
+        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+    end
+    
+    if #deck > 0 then
+        local card = trump.card
+        love.graphics.draw(card_art[0], trump.card.display.posX+15+card_width, trump.card.display.posY, 0, 1, 1, card_width/2, card_width)
+    end
     
     if player.card_played then
         local card = player.played_card
@@ -285,10 +311,10 @@ function love.draw()
     end
 
     for cardIndex, card in ipairs(player.hand) do
+        local hover_scale = 1
         if card.display.hover == true then
-            love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
-        else
-            love.graphics.draw(card_art[0], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+            hover_scale = 1.1
         end
+        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
     end
 end
