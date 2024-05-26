@@ -87,7 +87,7 @@ function new_game()
 
     init_deck()
 
-    for i = 1, 7 do
+    for i = 1, 3 do
         draw_card(dealer)
         draw_card(player)
     end
@@ -134,7 +134,7 @@ function draw_card(target)
     if (#deck > 0) then
         local temp_card = table.remove(deck, love.math.random(#deck))
         if target == player then
-            temp_card.display.posX = temp_card.display.offsetX + 64
+            temp_card.display.posX = temp_card.display.offsetX + 320
             temp_card.display.posY = 600
         end
         table.insert(target.hand, temp_card)
