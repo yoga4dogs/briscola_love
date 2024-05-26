@@ -120,7 +120,7 @@ end
 
 function play_card(target, card_index)
     local posX = 220
-    local posY = trump.card.display.posY
+    local posY = 300
     local temp_card = table.remove(target.hand, card_index)
     if target == player then
         temp_card.display.posX = posX
