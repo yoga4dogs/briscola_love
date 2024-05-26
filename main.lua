@@ -109,7 +109,8 @@ function draw_card(target)
     if (#deck > 0) then
         local temp_card = table.remove(deck, love.math.random(#deck))
         if target == player then
-            temp_card.display.posX = (60+card_width/2)+(#target.hand*card_width)
+            -- this sucks need to redo so cards dont overlap in last position
+            temp_card.display.posX = 60
             temp_card.display.posY = 600
         end
         table.insert(target.hand, temp_card)
@@ -137,12 +138,18 @@ end
 
 function play_card_mouse(x, y, target)
     for cardIndex, card in ipairs(target.hand) do
-        if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
+        if check_mouse_select(x, y, card, cardIndex) then
             play_card(target, cardIndex)
             active_player = dealer
             break
         end 
     end
+end
+
+function check_mouse_select(x, y, card, cardIndex)
+    if x > card.display.posX - card.display.offsetX+((cardIndex-1)*card_width)+15 and x < card.display.posX+card_width - card.display.offsetX+((cardIndex-1)*card_width)+15 and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
+        return true
+    end 
 end
 
 function love.keypressed(key)
@@ -165,7 +172,7 @@ end
 function love.mousemoved(x, y)
     -- flip cards hover
     for cardIndex, card in ipairs(player.hand) do
-        if x > card.display.posX - card.display.offsetX and x < card.display.posX+card_width - card.display.offsetX and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
+        if check_mouse_select(x, y, card, cardIndex) then
             card.display.hover = true
         else 
             card.display.hover = false
@@ -316,6 +323,6 @@ function love.draw()
         if card.display.hover == true then
             hover_scale = 1.1
         end
-        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.posX+((cardIndex-1)*card_width)+15, card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
     end
 end
