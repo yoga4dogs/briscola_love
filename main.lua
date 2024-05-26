@@ -2,6 +2,11 @@ function love.load()
     -- background color
     love.graphics.setBackgroundColor( 0.153, 0.467, 0.078 )
 
+    game_over_art = {
+        ['PLAYER'] = love.graphics.newImage('/images/winner.png'),
+        ['DEALER'] = love.graphics.newImage('/images/loser.png')
+    }
+
     -- set card art
     card_art = {
         [0] = love.graphics.newImage('/images/card_back.png'),
@@ -54,7 +59,7 @@ function love.load()
         [10] = 10,
         [11] = 11
     }
-    new_game()
+    init_game()
 end
 
 -- check if val in array
@@ -65,25 +70,36 @@ function contains(list, x)
 	return false
 end
 
-function new_game()
-    wait_timer = 0
-    
-    trump = { hand = {}, card = {}, suit = '' }
-    
-    player = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, scored_cards = {} }
-    dealer = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, scored_cards = {} }
+function init_game()
+    player = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, game_score = 0, scored_cards = {} }
+    dealer = { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, game_score = 0, scored_cards = {} }
 
-    scoring = {}
-    round = {
-        ended = false,
-        winner = ''
-    } 
+    game_winner = ''
     
     if love.math.random(2) > 1 then
         active_player = player
     else
         active_player = dealer
     end
+    
+    new_round()
+end
+
+function new_round()
+    wait_timer = 0
+
+    trump = { hand = {}, card = {}, suit = '' }
+
+    scoring = {}
+    round = {
+        ended = false,
+        winner = '',
+        wait_timer = 0
+    } 
+    player.round_score = 0
+    player.scored_cards = {}
+    dealer.round_score = 0
+    dealer.scored_cards = {}
 
     init_deck()
 
@@ -162,7 +178,7 @@ end
 
 function play_card_mouse(x, y, target)
     for cardIndex, card in ipairs(target.hand) do
-        if check_mouse_select(x, y, card, cardIndex) then
+        if check_mouse_select(x, y, card, cardIndex) and target.card_played ~= true then
             play_card(target, cardIndex)
             active_player = dealer
             break
@@ -179,7 +195,7 @@ end
 function love.keypressed(key)
     -- new game
     if key == 'n' then
-        new_game()
+        init_game()
     end
 end
 
@@ -225,7 +241,7 @@ function score_hand()
         draw_card(dealer)
         draw_card(player)
     end
-    wait_timer = 2
+    wait_timer = 1
 end
 
 function calc_hand_score(target1, target2)
@@ -244,44 +260,75 @@ function calc_hand_score(target1, target2)
 end
 
 function score_round()
+    print(#player.scored_cards..' '..#dealer.scored_cards)
     if #player.scored_cards > 0 then
+        print('PLAYER')
         for cardIndex, card in ipairs(player.scored_cards) do
+            print(card.suit..' '..card.rank)
             if scores[card.rank] then
+                print(card.suit..' '..card.rank..' - '.. scores[card.rank])
                 player.round_score = player.round_score + scores[card.rank]
             end
         end
+        print('score: '..player.round_score)
     end
     if #dealer.scored_cards > 0 then
+        print('DEALER')
         for cardIndex, card in ipairs(dealer.scored_cards) do
+            print(card.suit..' '..card.rank)
             if scores[card.rank] then
+                print(card.suit..' '..card.rank..' - '.. scores[card.rank])
                 dealer.round_score = dealer.round_score + scores[card.rank]
             end
         end
+        print('score: '..dealer.round_score)
     end
     if player.round_score > dealer.round_score then
         round.winner = 'PLAYER'
+        player.game_score = player.game_score + 1
     else
+        dealer.game_score = dealer.game_score + 1
         round.winner = 'DEALER'
     end
+    print(player.game_score..'/'..dealer.game_score)
     round.ended = true
+    round.wait_timer = 3
 end
 
 function reset_played_cards()
     player.card_played = false
     player.played_card = {}
     player.hand_score = 0
+    player.round_score = 0
     dealer.card_played = false
     dealer.played_card = {}
     dealer.hand_score = 0
+    dealer.round_score = 0
+end
+
+function game_over(winner)
+    print('GAME OVER - <'..winner..'> wins!')
 end
 
 function love.update(dt)
+    if player.game_score >= 3 then
+        game_winner = 'PLAYER'
+    elseif dealer.game_score >= 3 then
+        game_winner = 'DEALER'
+    end
     if wait_timer > 0 then 
         wait_timer = wait_timer - 1*dt 
         if wait_timer <= 0 and (#player.hand > 0 or #dealer.hand > 0) then
             reset_played_cards()
+        elseif round.wait_timer > 0 then 
+            round.wait_timer = round.wait_timer - 1*dt
+            if round.wait_timer <= 0 and round.ended then 
+                reset_played_cards()
+                new_round()
+            end
         end
     elseif #player.hand == 0 and #dealer.hand == 0 and (player.round_score == 0 and dealer.round_score == 0) then
+        score_hand()
         score_round()
     elseif player.card_played and dealer.card_played then
         score_hand()
@@ -316,6 +363,7 @@ function love.draw()
     if dealer.card_played then    
         love.graphics.print('<DEALER> suit: '..dealer.played_card.suit..', rank: '..dealer.played_card.rank, 400, 64)
     end
+    -- hand winner
     if player.hand_score > dealer.hand_score then
         love.graphics.print('<PLAYER> wins hand.', 400, 96)
     elseif player.hand_score < dealer.hand_score then
@@ -358,5 +406,12 @@ function love.draw()
         end
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
         love.graphics.draw(card_art[card.rank], card.display.posX+((cardIndex-1)*card_width), card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
+    end
+    
+    -- game over
+    if #game_winner > 0 then
+        local width, height = love.graphics.getDimensions( )
+        love.graphics.setColor(1,1,1)
+        love.graphics.draw(game_over_art[game_winner], width/2, height/2, 0, 2, 2, 256, 128)
     end
 end
