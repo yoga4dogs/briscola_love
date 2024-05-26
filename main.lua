@@ -4,17 +4,17 @@ function love.load()
 
     -- set card art
     card_art = {
-        [0] = love.graphics.newImage('/images/cardback.png'),
-        [2] = love.graphics.newImage('/images/temp_card.png'),
-        [3] = love.graphics.newImage('/images/temp_card.png'),
-        [4] = love.graphics.newImage('/images/temp_card.png'),
-        [5] = love.graphics.newImage('/images/temp_card.png'),
-        [6] = love.graphics.newImage('/images/temp_card.png'),
-        [7] = love.graphics.newImage('/images/temp_card.png'),
-        [8] = love.graphics.newImage('/images/temp_card.png'),
-        [9] = love.graphics.newImage('/images/temp_card.png'), 
-        [10] = love.graphics.newImage('/images/temp_card.png'),
-        [11] = love.graphics.newImage('/images/temp_card.png')
+        [0] = love.graphics.newImage('/images/card_back.png'),
+        [2] = love.graphics.newImage('/images/card_2.png'),
+        [3] = love.graphics.newImage('/images/card_3.png'),
+        [4] = love.graphics.newImage('/images/card_4.png'),
+        [5] = love.graphics.newImage('/images/card_5.png'),
+        [6] = love.graphics.newImage('/images/card_6.png'),
+        [7] = love.graphics.newImage('/images/card_7.png'),
+        [8] = love.graphics.newImage('/images/card_jack.png'),
+        [9] = love.graphics.newImage('/images/card_queen.png'), 
+        [10] = love.graphics.newImage('/images/card_king.png'),
+        [11] = love.graphics.newImage('/images/card_car.png')
     }
     card_width = card_art[0]:getWidth()
 
