@@ -221,15 +221,17 @@ function dealer_turn()
         card = { rank = 0 },
         index = 0
     }
+    -- dealer plays second to player
     if player.card_played then
         local temp_index = 0
         -- try to match suit off trump 
         for cardIndex, card in ipairs(dealer.hand) do
+            -- match suit and beat rank
             if card.suit == player.played_card.suit and card.rank >= player.played_card.rank then
                 if temp_card.card.rank == 0 then
                     temp_card.card = card
                     temp_card.index = cardIndex
-                -- select lowest rank card
+                -- select lowest rank card that beats player
                 elseif card.rank < temp_card.card.rank then
                     temp_card.card = card
                     temp_card.index = cardIndex
@@ -245,7 +247,7 @@ function dealer_turn()
                         if temp_card.card.rank == 0 then
                             temp_card.card = card
                             temp_card.index = cardIndex
-                        -- select lowest rank trump card
+                        -- select lowest rank card
                         elseif card.rank < temp_card.card.rank then
                             temp_card.card = card
                             temp_card.index = cardIndex
@@ -262,7 +264,21 @@ function dealer_turn()
                 end
             end
         end
+        -- dealer doesnt have anything
+        if temp_card.card.rank <= 0 then
+            for cardIndex, card in ipairs(dealer.hand) do
+                if temp_card.card.rank == 0 then
+                    temp_card.card = card
+                    temp_card.index = cardIndex
+                -- select lowest rank card
+                elseif card.rank < temp_card.card.rank then
+                    temp_card.card = card
+                    temp_card.index = cardIndex
+                end
+            end
+        end
     else
+    -- dealer play first, just throwing highest rank card
         for cardIndex, card in ipairs(dealer.hand) do
             if card.rank > temp_card.card.rank then
                 temp_card.card = card
@@ -270,7 +286,7 @@ function dealer_turn()
             end
         end
     end
-    play_card(dealer, love.math.random(#dealer.hand))
+    play_card(dealer, temp_card.index)
     active_player = player
 end
 
