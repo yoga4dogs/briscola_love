@@ -264,7 +264,7 @@ function dealer_turn()
                 end
             end
         end
-        -- dealer doesnt have anything
+        -- dealer doesnt have anything that beats
         if temp_card.card.rank <= 0 then
             for cardIndex, card in ipairs(dealer.hand) do
                 if temp_card.card.rank == 0 then
