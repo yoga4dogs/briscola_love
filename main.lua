@@ -223,10 +223,14 @@ function dealer_turn()
     }
     if player.card_played then
         local temp_index = 0
-        -- try to match suit off trump
+        -- try to match suit off trump 
         for cardIndex, card in ipairs(dealer.hand) do
             if card.suit == player.played_card.suit and card.rank >= player.played_card.rank then
-                if card.rank > temp_card.card.rank then
+                if temp_card.card.rank == 0 then
+                    temp_card.card = card
+                    temp_card.index = cardIndex
+                -- select lowest rank card
+                elseif card.rank < temp_card.card.rank then
                     temp_card.card = card
                     temp_card.index = cardIndex
                 end
@@ -241,6 +245,7 @@ function dealer_turn()
                         if temp_card.card.rank == 0 then
                             temp_card.card = card
                             temp_card.index = cardIndex
+                        -- select lowest rank trump card
                         elseif card.rank < temp_card.card.rank then
                             temp_card.card = card
                             temp_card.index = cardIndex
