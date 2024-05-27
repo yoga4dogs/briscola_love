@@ -41,9 +41,10 @@ function init_game()
 end
 
 function new_round()
-    hand_wait_timer = 0
-    scoring = {}
-
+    hand = {
+        scoring_player = {},
+        wait_timer = 0
+    }
     round = {
         winner = nil,
         wait_timer = 0
@@ -123,7 +124,7 @@ function play_card(target, card_index)
     end
     target.played_card = temp_card
     if player.card_played == false and dealer.card_played == false then
-        scoring = target
+        hand.scoring_player = target
     end
     target.card_played = true
 end
@@ -144,7 +145,7 @@ function calc_hand_score(target1, target2)
 end
 
 function score_hand()
-    if scoring == player then
+    if hand.scoring_player == player then
         calc_hand_score(player, dealer)
     else
         calc_hand_score(dealer, player)
@@ -163,7 +164,7 @@ function score_hand()
         draw_card(dealer)
         draw_card(player)
     end
-    hand_wait_timer = 1
+    hand.wait_timer = 1
 end
 
 function score_round()
@@ -213,10 +214,10 @@ function love.update(dt)
     elseif dealer.game_score >= 3 then
         game_winner = 'DEALER'
     else
-        -- hand score timer
-        if hand_wait_timer > 0 then 
-            hand_wait_timer = hand_wait_timer - 1*dt 
-            if hand_wait_timer <= 0 and (#player.hand > 0 or #dealer.hand > 0) then
+        -- hand end, new hand/round timer expired
+        if hand.wait_timer > 0 then 
+            hand.wait_timer = hand.wait_timer - 1*dt 
+            if hand.wait_timer <= 0 and (#player.hand > 0 or #dealer.hand > 0) then
                 reset_played_cards()
             elseif round.wait_timer > 0 then 
                 round.wait_timer = round.wait_timer - 1*dt
