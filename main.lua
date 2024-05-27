@@ -187,7 +187,7 @@ function play_card_mouse(x, y, target)
 end
 
 function check_mouse_select(x, y, card, cardIndex)
-    if x > card.display.posX - card.display.offsetX+((cardIndex-1)*card_width)+15 and x < card.display.posX+card_width - card.display.offsetX+((cardIndex-1)*card_width)+15 and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
+    if x > card.display.posX - card.display.offsetX+((cardIndex-1)*card_width)+16 and x < card.display.posX+card_width - card.display.offsetX+((cardIndex-1)*card_width)+16 and y > card.display.posY - card.display.offsetY and y < card.display.posY+card_width*2 - card.display.offsetY then
         return true
     end 
 end
@@ -329,28 +329,28 @@ function calc_hand_score(target1, target2)
 end
 
 function score_round()
-    print(#player.scored_cards..' '..#dealer.scored_cards)
+    -- print(#player.scored_cards..' '..#dealer.scored_cards)
     if #player.scored_cards > 0 then
-        print('PLAYER')
+        -- print('PLAYER')
         for cardIndex, card in ipairs(player.scored_cards) do
-            print(card.suit..' '..card.rank)
+            -- print(card.suit..' '..card.rank)
             if scores[card.rank] then
-                print(card.suit..' '..card.rank..' - '.. scores[card.rank])
+                -- print(card.suit..' '..card.rank..' - '.. scores[card.rank])
                 player.round_score = player.round_score + scores[card.rank]
             end
         end
-        print('score: '..player.round_score)
+        -- print('score: '..player.round_score)
     end
     if #dealer.scored_cards > 0 then
-        print('DEALER')
+        -- print('DEALER')
         for cardIndex, card in ipairs(dealer.scored_cards) do
-            print(card.suit..' '..card.rank)
+            -- print(card.suit..' '..card.rank)
             if scores[card.rank] then
-                print(card.suit..' '..card.rank..' - '.. scores[card.rank])
+                -- print(card.suit..' '..card.rank..' - '.. scores[card.rank])
                 dealer.round_score = dealer.round_score + scores[card.rank]
             end
         end
-        print('score: '..dealer.round_score)
+        -- print('score: '..dealer.round_score)
     end
     if player.round_score > dealer.round_score then
         round.winner = 'PLAYER'
@@ -359,7 +359,7 @@ function score_round()
         dealer.game_score = dealer.game_score + 1
         round.winner = 'DEALER'
     end
-    print(player.game_score..'/'..dealer.game_score)
+    -- print(player.game_score..'/'..dealer.game_score)
     round.ended = true
     round.wait_timer = 3
 end
@@ -373,10 +373,6 @@ function reset_played_cards()
     dealer.played_card = {}
     dealer.hand_score = 0
     dealer.round_score = 0
-end
-
-function game_over(winner)
-    print('GAME OVER - <'..winner..'> wins!')
 end
 
 function love.update(dt)
@@ -424,7 +420,7 @@ function love.draw()
     for cardIndex, card in ipairs(dealer.hand) do
         table.insert(dealer_output, 'suit: '..card.suit..', rank: '..card.rank)
     end
-    love.graphics.print(table.concat(dealer_output, '\n'), 240, 15)
+    love.graphics.print(table.concat(dealer_output, '\n'), 240, 16)
     -- played card
     if player.card_played then
         love.graphics.print('<PLAYER> suit: '..player.played_card.suit..', rank: '..player.played_card.rank, 400, 48)
@@ -442,6 +438,9 @@ function love.draw()
         love.graphics.print('<P>: '..player.round_score..' <D>: '..dealer.round_score, 400, 112)
         love.graphics.print('<'..round.winner..'> wins round!', 400, 128)
     end
+    
+    love.graphics.print('<P> '..player.game_score, 640, 16)
+    love.graphics.print('<D> '..dealer.game_score, 640, 32)
     
     -- card graphics
     -- deck
