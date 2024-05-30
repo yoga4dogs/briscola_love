@@ -6,18 +6,22 @@ function love.keypressed(key)
 end
 
 function love.mousepressed(x, y)
-    if active_player == player then
-        play_card_mouse(x, y, player)
-    end
     local mouse = {}
     mouse.x = x
     mouse.y = y
+
+    
     for eventIndex, event in ipairs(slide_events) do
         if(event.mover == test_man) then
             table.remove(slide_events, eventIndex)
         end
     end
-    create_slide_event(test_man, mouse)
+    
+    local action = nil
+    if active_player == player then
+        action = function() play_card_mouse(mouse, player) end
+    end
+    create_slide_event(test_man, mouse, action)
 
 end
 
@@ -32,9 +36,10 @@ function love.mousemoved(x, y)
     end
 end
 
-function play_card_mouse(x, y, target)
+function play_card_mouse(mouse, target)
     for cardIndex, card in ipairs(target.hand) do
-        if check_mouse_select(x, y, card, cardIndex) and target.card_played ~= true then
+        if check_mouse_select(mouse.x, mouse.y, card, cardIndex) and target.card_played ~= true then
+            -- create_slide_event(test_man, mouse, action)
             play_card(target, cardIndex)
             active_player = dealer
             break

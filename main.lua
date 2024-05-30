@@ -8,8 +8,13 @@ function love.load()
     require('controls')
     -- love.draw()
     require('draw')
+    -- anim and events()
+    require('events')
     -- dealer instructions
     require('dealer_logic')
+
+    playX = 220
+    playY = 300
 
     test_man = {
         sprite = love.graphics.newImage('/images/dogman.png'),
@@ -125,17 +130,17 @@ function draw_card(target)
 end
 
 function play_card(target, card_index)
-    local x = 220
-    local y = 300
-    local temp_card = table.remove(target.hand, card_index)
+    
+    target.played_card = table.remove(target.hand, card_index)
+    local play_pos = {}
+    play_pos.y = playY
     if target == player then
-        temp_card.display.x = x
-        temp_card.display.y = y
+        play_pos.x = playX
+        create_slide_event(target.played_card.display, play_pos)
     else
-        temp_card.display.x = x + card_width + 20
-        temp_card.display.y = y
+        play_pos.x = playX + card_width + 20
+        create_slide_event(target.played_card.display, play_pos)
     end
-    target.played_card = temp_card
     if player.card_played == false and dealer.card_played == false then
         hand.scoring_player = target
     end

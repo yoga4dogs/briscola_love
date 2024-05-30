@@ -1,50 +1,5 @@
-slide_events = {}
-
-function create_slide_event(_mover, _target)
-    local slide_event = {
-        mover = _mover,
-        target = _target
-    }
-    table.insert(slide_events, slide_event)
-end
-
-function slide_handler(d_t)
-    local check_unique = {}
-    for eventIndex, event in ipairs(slide_events) do
-        -- only do one event person mover until previous event is cleared
-            -- check for final pos is ugly i dont like it
-        if(not contains(check_unique, event.mover)) then
-            table.insert(check_unique, event.mover)
-            slide_to(event.mover, event.target, event.mover.speed, d_t)
-            if(math.floor(event.mover.x) == math.floor(event.target.x) or math.floor(event.mover.y) == math.floor(event.target.y)) then
-                table.remove(slide_events, eventIndex)
-            end
-        end
-    end
-end
-
-function slide_to(mover, target, speed, delta)
-    if(math.floor(mover.x) ~= math.floor(target.x) and math.floor(mover.y) ~= math.floor(target.y)) then
-        local direction = math.atan2(target.y-mover.y,target.x-mover.x)
-
-        if mover.facing then
-            if(math.floor(target.x) > math.floor(mover.x)) then
-                mover.facing = 1
-            else
-                mover.facing = -1
-            end
-        end
-
-        local vx = math.cos(direction)*speed
-        local vy = math.sin(direction)*speed
-
-        mover.x = mover.x + vx * delta
-        mover.y = mover.y + vy * delta
-    end
-end
-
 function love.draw()
-    -- text display
+-- text display
     love.graphics.setColor(1,1,1)
     -- trump card
     love.graphics.print('<TRUMP> suit: '..trump.suit, 400, 16)
@@ -83,7 +38,7 @@ function love.draw()
     love.graphics.print('<P> '..player.game_score, 640, 16)
     love.graphics.print('<D> '..dealer.game_score, 640, 32)
     
-    -- card graphics
+-- graphics display
     -- deck
     if #deck > 0 then
         local card = trump.card
@@ -124,6 +79,7 @@ function love.draw()
         love.graphics.draw(game_over_art[game_winner], width/2, height/2, 0, 2, 2, 256, 128)
     end
 
+-- test graphics
     love.graphics.setColor(1,1,1)
     love.graphics.draw(test_man.sprite, test_man.x, test_man.y, 0, test_man.facing, 1, test_man.width/2, test_man.width/2)
 
