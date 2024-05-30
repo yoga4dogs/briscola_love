@@ -11,6 +11,8 @@ end
 function slide_handler(d_t)
     local check_unique = {}
     for eventIndex, event in ipairs(slide_events) do
+        -- only do one event person mover until previous event is cleared
+            -- check for final pos is ugly i dont like it
         if(not contains(check_unique, event.mover)) then
             table.insert(check_unique, event.mover)
             slide_to(event.mover, event.target, event.mover.speed, d_t)
@@ -22,7 +24,6 @@ function slide_handler(d_t)
 end
 
 function slide_to(mover, target, speed, delta)
-    
     if(math.floor(mover.x) ~= math.floor(target.x) and math.floor(mover.y) ~= math.floor(target.y)) then
         local direction = math.atan2(target.y-mover.y,target.x-mover.x)
 
