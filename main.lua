@@ -11,6 +11,19 @@ function love.load()
     -- dealer instructions
     require('dealer_logic')
 
+    test_man = {
+        sprite = love.graphics.newImage('/images/dogman.png'),
+        width = 0,
+        x = 0,
+        y = 0,
+        target = {
+            x = 0, y = 0
+        },
+        facing = 1,
+        speed = 250
+    }
+    test_man.width = test_man.sprite:getWidth()
+
     init_game()
 end
 
@@ -67,8 +80,8 @@ function new_round()
     -- .hand is jsut some hacky bs to get draw_card working with trump
     trump.card =  trump.hand[1]
     trump.suit = trump.card.suit
-    trump.card.display.posX = 680
-    trump.card.display.posY = 300
+    trump.card.display.x = 680
+    trump.card.display.y = 300
 end
 
 function init_deck()
@@ -80,8 +93,8 @@ function init_deck()
                 rank = rank,
                 display = {
                     hover = false,
-                    posX = 0,
-                    posY = 0,
+                    x = 0,
+                    y = 0,
                     offsetX = card_width / 2,
                     offsetY = card_width,
                     rot = love.math.random()/10.0-.05
@@ -104,23 +117,23 @@ function draw_card(target)
     if (#deck > 0) then
         local temp_card = table.remove(deck, love.math.random(#deck))
         if target == player then
-            temp_card.display.posX = temp_card.display.offsetX + 320
-            temp_card.display.posY = 600
+            temp_card.display.x = temp_card.display.offsetX + 320
+            temp_card.display.y = 600
         end
         table.insert(target.hand, temp_card)
     end
 end
 
 function play_card(target, card_index)
-    local posX = 220
-    local posY = 300
+    local x = 220
+    local y = 300
     local temp_card = table.remove(target.hand, card_index)
     if target == player then
-        temp_card.display.posX = posX
-        temp_card.display.posY = posY
+        temp_card.display.x = x
+        temp_card.display.y = y
     else
-        temp_card.display.posX = posX + card_width + 20
-        temp_card.display.posY = posY
+        temp_card.display.x = x + card_width + 20
+        temp_card.display.y = y
     end
     target.played_card = temp_card
     if player.card_played == false and dealer.card_played == false then
@@ -208,6 +221,9 @@ function reset_played_cards()
 end
 
 function love.update(dt)
+
+    slide_handler(dt)
+
     -- game end
     if player.game_score >= 3 then
         game_winner = 'PLAYER'

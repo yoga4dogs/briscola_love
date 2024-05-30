@@ -9,6 +9,16 @@ function love.mousepressed(x, y)
     if active_player == player then
         play_card_mouse(x, y, player)
     end
+    local mouse = {}
+    mouse.x = x
+    mouse.y = y
+    for eventIndex, event in ipairs(slide_events) do
+        if(event.mover == test_man) then
+            table.remove(slide_events, eventIndex)
+        end
+    end
+    create_slide_event(test_man, mouse)
+
 end
 
 function love.mousemoved(x, y)
@@ -33,10 +43,10 @@ function play_card_mouse(x, y, target)
 end
 
 function check_mouse_select(x, y, card, cardIndex)
-    if x > card.display.posX - card.display.offsetX+((cardIndex-1)*card_width)+16 
-        and x < card.display.posX+card_width - card.display.offsetX+((cardIndex-1)*card_width)+16 
-        and y > card.display.posY - card.display.offsetY 
-        and y < card.display.posY+card_width*2 - card.display.offsetY then
+    if x > card.display.x - card.display.offsetX+((cardIndex-1)*card_width)+16 
+        and x < card.display.x+card_width - card.display.offsetX+((cardIndex-1)*card_width)+16 
+        and y > card.display.y - card.display.offsetY 
+        and y < card.display.y+card_width*2 - card.display.offsetY then
         return true
     end 
 end

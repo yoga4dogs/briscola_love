@@ -1,3 +1,47 @@
+slide_events = {}
+
+function create_slide_event(_mover, _target)
+    local slide_event = {
+        mover = _mover,
+        target = _target
+    }
+    table.insert(slide_events, slide_event)
+end
+
+function slide_handler(d_t)
+    local check_unique = {}
+    for eventIndex, event in ipairs(slide_events) do
+        if(not contains(check_unique, event.mover)) then
+            table.insert(check_unique, event.mover)
+            slide_to(event.mover, event.target, event.mover.speed, d_t)
+            if(math.floor(event.mover.x) == math.floor(event.target.x) or math.floor(event.mover.y) == math.floor(event.target.y)) then
+                table.remove(slide_events, eventIndex)
+            end
+        end
+    end
+end
+
+function slide_to(mover, target, speed, delta)
+    
+    if(math.floor(mover.x) ~= math.floor(target.x) and math.floor(mover.y) ~= math.floor(target.y)) then
+        local direction = math.atan2(target.y-mover.y,target.x-mover.x)
+
+        if mover.facing then
+            if(math.floor(target.x) > math.floor(mover.x)) then
+                mover.facing = 1
+            else
+                mover.facing = -1
+            end
+        end
+
+        local vx = math.cos(direction)*speed
+        local vy = math.sin(direction)*speed
+
+        mover.x = mover.x + vx * delta
+        mover.y = mover.y + vy * delta
+    end
+end
+
 function love.draw()
     -- text display
     love.graphics.setColor(1,1,1)
@@ -42,25 +86,25 @@ function love.draw()
     -- deck
     if #deck > 0 then
         local card = trump.card
-        love.graphics.draw(card_art[0], trump.card.display.posX+32+card_width, trump.card.display.posY, 0, 1, 1, card_width/2, card_width)
+        love.graphics.draw(card_art[0], trump.card.display.x+32+card_width, trump.card.display.y, 0, 1, 1, card_width/2, card_width)
     end
     -- set suit colors
     -- trump card
     if trump.card then
         local card = trump.card
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
     -- played cards
     if player.card_played then
         local card = player.played_card
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
     if dealer.card_played then
         local card = dealer.played_card
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.posX, card.display.posY, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
     end
     -- player hand
     for cardIndex, card in ipairs(player.hand) do
@@ -69,7 +113,7 @@ function love.draw()
             hover_scale = 1.1
         end
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.posX+((cardIndex-1)*card_width), card.display.posY, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.x+((cardIndex-1)*card_width), card.display.y, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
     end
     
     -- game over
@@ -78,4 +122,8 @@ function love.draw()
         love.graphics.setColor(1,1,1)
         love.graphics.draw(game_over_art[game_winner], width/2, height/2, 0, 2, 2, 256, 128)
     end
+
+    love.graphics.setColor(1,1,1)
+    love.graphics.draw(test_man.sprite, test_man.x, test_man.y, 0, test_man.facing, 1, test_man.width/2, test_man.width/2)
+
 end
