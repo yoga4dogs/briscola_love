@@ -22,7 +22,7 @@ function love.load()
             x = 0, y = 0
         },
         facing = 1,
-        speed = 250
+        speed = 350
     }
     test_man.width = test_man.sprite:getWidth()
 
@@ -175,11 +175,6 @@ function calc_hand_score(target1, target2)
 end
 
 function score_hand()
-    if hand.scoring_player == player then
-        print("player")
-    else
-        print("dealer")
-    end
     if hand.scoring_player == player then
         calc_hand_score(player, dealer)
     else
