@@ -20,7 +20,7 @@ function slide_handler(d_t)
         if(not contains(check_unique, event.mover)) then
             table.insert(check_unique, event.mover)
             slide_to(event.mover, event.target, event.mover.speed, d_t)
-            if(math.floor(event.mover.x) == math.floor(event.target.x) and math.floor(event.mover.y) == math.floor(event.target.y)) then
+            if(math.floor(event.mover.x) == math.floor(event.target.x) or math.floor(event.mover.y) == math.floor(event.target.y)) then
                 if event.action then
                     event.action()
                 end

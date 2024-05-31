@@ -14,7 +14,7 @@ function love.load()
     require('dealer_logic')
 
     playX = 220
-    playY = 300
+    playY = 100
 
     test_man = {
         sprite = love.graphics.newImage('/images/dogman.png'),
@@ -41,12 +41,16 @@ function contains(list, x)
 end
 
 function new_player()
-    return { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, game_score = 0, scored_cards = {} }
+    return { hand = {}, played_card = {}, card_played = false, hand_score = 0, round_score = 0, game_score = 0, scored_cards = {}, anchor = {x = 0, y = 0} }
 end
 
 function init_game()
     player = new_player()
+    player.anchor.x = card_width / 2 + 256
+    player.anchor.y = card_width + 350
     dealer = new_player()
+    dealer.anchor.x = card_width / 2 + 256
+    dealer.anchor.y = -card_width*2
 
     if love.math.random(2) > 1 then
         active_player = player
@@ -80,17 +84,19 @@ function new_round()
         draw_card(player)
     end
     
-    trump = { hand = {}, card = {}, suit = '' }
+    trump = { hand = {}, card = {}, suit = '', anchor = {x = deck.anchor.x - 32 - card_width, y = deck.anchor.y - 8} }
     draw_card(trump)
     -- .hand is jsut some hacky bs to get draw_card working with trump
     trump.card =  trump.hand[1]
     trump.suit = trump.card.suit
-    trump.card.display.x = 680
-    trump.card.display.y = 300
 end
 
 function init_deck()
-    full_deck = {}
+    deck = {
+        full_deck = {},
+        active = {},
+        anchor = { x = 768, y = 128 }
+    }
     for suitIndex, suit in ipairs({'club', 'sword', 'coin', 'cup'}) do
         for rank = 2, 11 do
             local temp_card = {
@@ -98,53 +104,62 @@ function init_deck()
                 rank = rank,
                 display = {
                     hover = false,
-                    x = 0,
-                    y = 0,
-                    offsetX = card_width / 2,
-                    offsetY = card_width,
+                    x = deck.anchor.x,
+                    y = deck.anchor.y,
                     rot = love.math.random()/10.0-.05
                 }
             }
-            table.insert(full_deck, temp_card)
+            table.insert(deck.full_deck, temp_card)
         end
     end
     replenish_deck()
 end
 function replenish_deck()
-    deck = full_deck
+    deck.active = deck.full_deck
 end
 
 function draw_card(target)
-    if #deck == 0 and trump.card then
+    if #deck.active == 0 and trump.card then
         table.insert(deck, trump.card)
         trump.card = nil
     end 
-    if (#deck > 0) then
-        local temp_card = table.remove(deck, love.math.random(#deck))
-        if target == player then
-            temp_card.display.x = temp_card.display.offsetX + 320
-            temp_card.display.y = 600
-        end
+    if (#deck.active > 0) then
+        local temp_card = table.remove(deck.active, love.math.random(#deck.active))
+        temp_card.display.x = deck.anchor.x
+        temp_card.display.y = deck.anchor.y
+        
         table.insert(target.hand, temp_card)
+
+        local hand_pos = {}
+        hand_pos.x = target.anchor.x
+        hand_pos.y = target.anchor.y
+        if target ~= dealer then
+            create_slide_event(temp_card.display, hand_pos, action)
+        else
+            temp_card.display.x = target.anchor.x
+            temp_card.display.y = target.anchor.y
+        end
     end
 end
 
-function play_card(target, card_index)
-    
+function play_card(target, card_index, next_player)
     target.played_card = table.remove(target.hand, card_index)
+    
     local play_pos = {}
-    play_pos.y = playY
+    play_pos.y = deck.anchor.y
     if target == player then
-        play_pos.x = playX
-        create_slide_event(target.played_card.display, play_pos)
+        target.played_card.display.x = target.anchor.x + (card_index-1)*card_width
+        play_pos.x = deck.anchor.x - 512
     else
-        play_pos.x = playX + card_width + 20
-        create_slide_event(target.played_card.display, play_pos)
+        play_pos.x = deck.anchor.x - 512 + card_width + 20
     end
+    
     if player.card_played == false and dealer.card_played == false then
         hand.scoring_player = target
     end
-    target.card_played = true
+    target.card_played = true 
+    create_slide_event(target.played_card.display, play_pos, action)
+    active_player = next_player
 end
 
 function calc_hand_score(target1, target2)
@@ -164,6 +179,11 @@ end
 
 function score_hand()
     if hand.scoring_player == player then
+        print("player")
+    else
+        print("dealer")
+    end
+    if hand.scoring_player == player then
         calc_hand_score(player, dealer)
     else
         calc_hand_score(dealer, player)
@@ -182,7 +202,7 @@ function score_hand()
         draw_card(dealer)
         draw_card(player)
     end
-    hand.wait_timer = 1
+    hand.wait_timer = 2
 end
 
 function score_round()
@@ -210,7 +230,7 @@ function score_round()
         dealer.game_score = dealer.game_score + 1
         round.winner = 'DEALER'
     end
-    round.wait_timer = 3
+    round.wait_timer = 4
 end
 
 function reset_played_cards()
@@ -226,7 +246,6 @@ function reset_played_cards()
 end
 
 function love.update(dt)
-
     slide_handler(dt)
 
     -- game end
@@ -255,7 +274,7 @@ function love.update(dt)
         elseif player.card_played and dealer.card_played then
             score_hand()
         -- dealer turn
-        elseif active_player == dealer then
+        elseif active_player == dealer and not dealer.card_played then
             dealer_turn()
         end
     end

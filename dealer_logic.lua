@@ -68,6 +68,5 @@ function dealer_turn()
             end
         end
     end
-    play_card(dealer, temp_card.index)
-    active_player = player
+    play_card(dealer, temp_card.index, player)
 end

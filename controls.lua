@@ -1,7 +1,7 @@
 function love.keypressed(key)
     -- new game
     if key == 'n' then
-        init_game()
+        love.load()
     end
 end
 
@@ -10,7 +10,6 @@ function love.mousepressed(x, y)
     mouse.x = x
     mouse.y = y
 
-    
     for eventIndex, event in ipairs(slide_events) do
         if(event.mover == test_man) then
             table.remove(slide_events, eventIndex)
@@ -38,20 +37,19 @@ end
 
 function play_card_mouse(mouse, target)
     for cardIndex, card in ipairs(target.hand) do
-        if check_mouse_select(mouse.x, mouse.y, card, cardIndex) and target.card_played ~= true then
+        if check_mouse_select(mouse.x, mouse.y, card, cardIndex) and not target.card_played then
             -- create_slide_event(test_man, mouse, action)
-            play_card(target, cardIndex)
-            active_player = dealer
+            play_card(target, cardIndex, dealer)
             break
         end 
     end
 end
 
 function check_mouse_select(x, y, card, cardIndex)
-    if x > card.display.x - card.display.offsetX+((cardIndex-1)*card_width)+16 
-        and x < card.display.x+card_width - card.display.offsetX+((cardIndex-1)*card_width)+16 
-        and y > card.display.y - card.display.offsetY 
-        and y < card.display.y+card_width*2 - card.display.offsetY then
+    if x > card.display.x+((cardIndex-1)*card_width)+16 
+        and x < card.display.x+card_width+((cardIndex-1)*card_width)+16 
+        and y > card.display.y
+        and y < card.display.y+card_width*2 then
         return true
     end 
 end

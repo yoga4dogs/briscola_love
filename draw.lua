@@ -40,27 +40,16 @@ function love.draw()
     
 -- graphics display
     -- deck
-    if #deck > 0 then
+    if #deck.active > 0 then
         local card = trump.card
-        love.graphics.draw(card_art[0], trump.card.display.x+32+card_width, trump.card.display.y, 0, 1, 1, card_width/2, card_width)
+        love.graphics.draw(card_art[0], deck.anchor.x, deck.anchor.y, 0, 1, 1)
     end
     -- set suit colors
     -- trump card
     if trump.card then
         local card = trump.card
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
-    end
-    -- played cards
-    if player.card_played then
-        local card = player.played_card
-        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
-    end
-    if dealer.card_played then
-        local card = dealer.played_card
-        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot, 1, 1, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot)
     end
     -- player hand
     for cardIndex, card in ipairs(player.hand) do
@@ -69,7 +58,18 @@ function love.draw()
             hover_scale = 1.1
         end
         love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
-        love.graphics.draw(card_art[card.rank], card.display.x+((cardIndex-1)*card_width), card.display.y, card.display.rot, hover_scale, hover_scale, card.display.offsetX, card.display.offsetY)
+        love.graphics.draw(card_art[card.rank], card.display.x+((cardIndex-1)*card_width), card.display.y, card.display.rot, hover_scale, hover_scale)
+    end
+    -- played cards
+    if player.card_played then
+        local card = player.played_card
+        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
+        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot)
+    end
+    if dealer.card_played then
+        local card = dealer.played_card
+        love.graphics.setColor(suit_colors[card.suit].r, suit_colors[card.suit].g, suit_colors[card.suit].b)
+        love.graphics.draw(card_art[card.rank], card.display.x, card.display.y, card.display.rot)
     end
     
     -- game over
