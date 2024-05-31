@@ -68,5 +68,7 @@ function dealer_turn()
             end
         end
     end
-    play_card(dealer, temp_card.index, player)
+    if #dealer.hand > 0 then
+        play_card(dealer, temp_card.index, player)
+    end
 end

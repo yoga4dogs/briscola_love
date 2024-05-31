@@ -1,7 +1,7 @@
 function love.keypressed(key)
     -- new game
     if key == 'n' then
-        love.load()
+        init_game()
     end
 end
 
@@ -17,7 +17,7 @@ function love.mousepressed(x, y)
     end
     
     local action = nil
-    if active_player == player then
+    if active_player == player and not player.card_played then
         action = function() play_card_mouse(mouse, player) end
     end
     create_slide_event(test_man, mouse, action)

@@ -13,9 +13,6 @@ function love.load()
     -- dealer instructions
     require('dealer_logic')
 
-    playX = 220
-    playY = 100
-
     test_man = {
         sprite = love.graphics.newImage('/images/dogman.png'),
         width = 0,
@@ -95,7 +92,7 @@ function init_deck()
     deck = {
         full_deck = {},
         active = {},
-        anchor = { x = 768, y = 128 }
+        anchor = { x = 768, y = 160 }
     }
     for suitIndex, suit in ipairs({'club', 'sword', 'coin', 'cup'}) do
         for rank = 2, 11 do
@@ -120,7 +117,7 @@ end
 
 function draw_card(target)
     if #deck.active == 0 and trump.card then
-        table.insert(deck, trump.card)
+        table.insert(deck.active, trump.card)
         trump.card = nil
     end 
     if (#deck.active > 0) then
